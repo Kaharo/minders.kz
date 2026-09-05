@@ -1,0 +1,21 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="wash" x1="110" y1="70" x2="1040" y2="560" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2B62FF"/>
+      <stop offset="0.5" stop-color="#8057FF"/>
+      <stop offset="1" stop-color="#E728CA"/>
+    </linearGradient>
+    <clipPath id="sphereClip"><circle cx="912" cy="325" r="224"/></clipPath>
+  </defs>
+  <rect width="1200" height="630" rx="28" fill="#111A35"/>
+  <circle cx="913" cy="320" r="255" fill="url(#wash)" opacity="0.95"/>
+  <image x="688" y="101" width="448" height="448" preserveAspectRatio="xMidYMid slice" clip-path="url(#sphereClip)" xlink:href="expo-sphere-qazexpocongress.jpg"/>
+  <circle cx="110" cy="110" r="8" fill="#E728CA"/>
+  <circle cx="583" cy="517" r="7" fill="#5EBBFF"/>
+  <path d="M105 527C257 457 360 446 561 493" stroke="#8799E9" stroke-opacity="0.7"/>
+  <text x="92" y="100" fill="#BAC4DB" font-family="Arial, sans-serif" font-size="18" letter-spacing="5">minders astana</text>
+  <text x="92" y="285" fill="#F6F8FF" font-family="Arial, sans-serif" font-size="94" font-weight="700" letter-spacing="-5">BRUNCH</text>
+  <text x="92" y="380" fill="#F6F8FF" font-family="Arial, sans-serif" font-size="94" font-weight="700" letter-spacing="-5">#07</text>
+  <text x="96" y="473" fill="#D8DEEF" font-family="Arial, sans-serif" font-size="22">20.09.2026   /   19:00   /   EXPO</text>
+  <text x="96" y="550" fill="#8799E9" font-family="Arial, sans-serif" font-size="14" letter-spacing="1">photo credit: QazExpoCongress</text>
+</svg>

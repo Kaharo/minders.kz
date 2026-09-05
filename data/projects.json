@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "atlas",
+    "title": "Atlas",
+    "meta": "визуализация / Knowledge Base",
+    "description": "Визуальная карта Knowledge Base.",
+    "href": "projects.html#atlas",
+    "color": "mark-blue"
+  },
+  {
+    "slug": "architecture-of-thoughts",
+    "title": "Architecture of Thoughts",
+    "meta": "обучение / AI",
+    "description": "Обучающие материалы и практики для работы со сложными AI-системами.",
+    "href": "projects.html#architecture-of-thoughts",
+    "color": "mark-violet"
+  },
+  {
+    "slug": "bolzhau",
+    "title": "Bolzhau",
+    "meta": "предиктивные технологии / казахский язык",
+    "description": "Предиктивные технологии для казахского языка.",
+    "href": "projects.html#bolzhau",
+    "color": "mark-mint"
+  }
+]

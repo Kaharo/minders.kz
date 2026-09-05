@@ -1,0 +1,15 @@
+{
+  "name": "minders astana",
+  "short_name": "minders",
+  "lang": "ru",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fc",
+  "theme_color": "#f7f8fc",
+  "icons": [{
+    "src": "/assets/minders-logo.png",
+    "sizes": "1254x1254",
+    "type": "image/png",
+    "purpose": "any maskable"
+  }]
+}

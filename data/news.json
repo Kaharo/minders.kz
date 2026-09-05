@@ -1,0 +1,30 @@
+[
+  {
+    "kind": "AI",
+    "title": "Как собирать полезных агентов",
+    "shortDate": "12.09",
+    "isoDate": "2026-09-12",
+    "href": "news.html"
+  },
+  {
+    "kind": "сообщество",
+    "title": "Как прошёл brunch #06",
+    "shortDate": "08.09",
+    "isoDate": "2026-09-08",
+    "href": "news.html"
+  },
+  {
+    "kind": "проект",
+    "title": "Atlas показывает карту знаний",
+    "shortDate": "01.09",
+    "isoDate": "2026-09-01",
+    "href": "projects.html#atlas"
+  },
+  {
+    "kind": "обучение",
+    "title": "Что проверять в RAG прототипе",
+    "shortDate": "27.08",
+    "isoDate": "2026-08-27",
+    "href": "learning.html"
+  }
+]
