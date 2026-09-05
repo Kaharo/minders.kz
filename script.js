@@ -113,6 +113,12 @@
 
   const eventTypeOrder = ["brunch", "light-steps", "focused"];
 
+  const eventTypeDescriptions = {
+    brunch: "Большой разговор за кофе.",
+    "light-steps": "Прогулка, воздух и идеи в движении.",
+    focused: "Одна тема, глубже обычного."
+  };
+
   const eventStatusLabels = {
     past: "прошло",
     cancelled: "отменено"
@@ -203,6 +209,98 @@
     `).join("");
   };
 
+  const renderEventColumnItem = (item) => {
+    const dateParts = eventDateParts(item);
+    const href = item.href || `events.html#${item.id || "calendar"}`;
+    const status = eventStatusLabels[item.status] || item.status || "";
+    const meta = eventMeta(item);
+    const supportingText = meta || item.description || "";
+    return `
+      <a class="event-column-item${item.status === "cancelled" ? " is-cancelled" : ""}" href="${escapeHtml(href)}">
+        <time class="event-column-date" datetime="${escapeHtml(item.date || "")}"><strong>${escapeHtml(dateParts.day)}</strong><span>${escapeHtml(dateParts.month)}</span></time>
+        <span class="event-column-copy"><span class="event-column-kicker"><small>${escapeHtml(status || "встреча")}</small><b>#${escapeHtml(item.number || "")}</b></span><strong>${escapeHtml(item.title || "Без названия")}</strong>${supportingText ? `<em>${escapeHtml(supportingText)}</em>` : ""}</span>
+        <b class="event-column-arrow" aria-hidden="true">↗</b>
+      </a>
+    `;
+  };
+
+  const renderEventTypeColumns = (items) => {
+    const groups = items.reduce((grouped, item) => {
+      const type = item.type || "other";
+      if (!grouped[type]) grouped[type] = [];
+      grouped[type].push(item);
+      return grouped;
+    }, {});
+    const groupOrder = [...eventTypeOrder, ...Object.keys(groups).filter((type) => !eventTypeOrder.includes(type))];
+    const orderedItems = sortEventsByDate(items);
+
+    return `<div class="event-type-columns">${groupOrder.filter((type) => groups[type]).map((type) => {
+      const groupItems = orderedItems.filter((item) => (item.type || "other") === type);
+      return `
+        <section class="event-type-column" data-event-type="${escapeHtml(type)}" aria-labelledby="event-column-${escapeHtml(type)}">
+          <header class="event-type-column-header"><div><span class="event-type-dot" aria-hidden="true"></span><h3 id="event-column-${escapeHtml(type)}">${escapeHtml(eventTypeLabels[type] || type)}</h3></div><span>${eventCountLabel(groupItems.length)}</span><p>${escapeHtml(eventTypeDescriptions[type] || "Формат встречи сообщества.")}</p></header>
+          <div class="event-type-column-list">${groupItems.map(renderEventColumnItem).join("")}</div>
+        </section>
+      `;
+    }).join("")}</div>`;
+  };
+
+  const monthKey = (item) => String(item.date || "").slice(0, 7);
+
+  const monthLabel = (key) => {
+    const date = new Date(`${key}-01T12:00:00`);
+    if (Number.isNaN(date.getTime())) return key;
+    return new Intl.DateTimeFormat("ru-RU", { month: "long", year: "numeric" }).format(date);
+  };
+
+  const renderMonthDayEvent = (item) => {
+    const href = item.href || `events.html#${item.id || "calendar"}`;
+    return `<a class="month-day-event${item.status === "cancelled" ? " is-cancelled" : ""}" data-type="${escapeHtml(item.type || "other")}" href="${escapeHtml(href)}" title="${escapeHtml(item.title || "Событие")}"><span>#${escapeHtml(item.number || "")}</span><strong>${escapeHtml(item.title || "Без названия")}</strong></a>`;
+  };
+
+  const renderMonthlyCalendar = (items) => {
+    const grouped = items.reduce((months, item) => {
+      const key = monthKey(item);
+      if (!/^\d{4}-\d{2}$/.test(key)) return months;
+      if (!months[key]) months[key] = [];
+      months[key].push(item);
+      return months;
+    }, {});
+    const weekdays = ["пн", "вт", "ср", "чт", "пт", "сб", "вс"];
+    const months = Object.keys(grouped).sort();
+
+    return `<div class="month-calendar-list">${months.map((key) => {
+      const [year, month] = key.split("-").map(Number);
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const leadingDays = (new Date(year, month - 1, 1).getDay() + 6) % 7;
+      const totalCells = leadingDays + daysInMonth;
+      const trailingDays = (7 - (totalCells % 7)) % 7;
+      const eventsByDate = grouped[key].reduce((dates, item) => {
+        if (!dates[item.date]) dates[item.date] = [];
+        dates[item.date].push(item);
+        return dates;
+      }, {});
+      const cells = [];
+
+      weekdays.forEach((weekday) => {
+        cells.push(`<div class="month-weekday" role="columnheader">${weekday}</div>`);
+      });
+      for (let index = 0; index < leadingDays; index += 1) {
+        cells.push(`<div class="month-day is-empty" role="gridcell" aria-hidden="true"></div>`);
+      }
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const dateKey = `${key}-${String(day).padStart(2, "0")}`;
+        const dayEvents = (eventsByDate[dateKey] || []).sort((a, b) => Number(a.number || 0) - Number(b.number || 0));
+        cells.push(`<div class="month-day${dayEvents.length ? " has-events" : ""}" role="gridcell"><time datetime="${dateKey}">${day}</time>${dayEvents.map(renderMonthDayEvent).join("")}</div>`);
+      }
+      for (let index = 0; index < trailingDays; index += 1) {
+        cells.push(`<div class="month-day is-empty" role="gridcell" aria-hidden="true"></div>`);
+      }
+
+      return `<section class="month-calendar-month" aria-labelledby="month-${escapeHtml(key)}"><header class="month-calendar-month-header"><h3 id="month-${escapeHtml(key)}">${escapeHtml(monthLabel(key))}</h3><span>${eventCountLabel(grouped[key].length)}</span></header><div class="month-calendar-grid" role="grid" aria-label="${escapeHtml(monthLabel(key))}">${cells.join("")}</div></section>`;
+    }).join("")}</div>`;
+  };
+
   const renderFeaturedEvent = (items) => {
     const orderedItems = sortEventsByDate(items);
     const now = Date.now();
@@ -263,9 +361,13 @@
         } else if (collection === "events") {
           target.innerHTML = target.dataset.view === "calendar"
             ? renderCalendar(visibleItems)
-            : target.dataset.view === "featured"
-              ? renderFeaturedEvent(visibleItems)
-              : renderPageRows(visibleItems, collection);
+            : target.dataset.view === "columns"
+              ? renderEventTypeColumns(visibleItems)
+              : target.dataset.view === "month-calendar"
+                ? renderMonthlyCalendar(visibleItems)
+                : target.dataset.view === "featured"
+                  ? renderFeaturedEvent(visibleItems)
+                  : renderPageRows(visibleItems, collection);
         }
       } catch (error) {
         console.warn(error.message);
