@@ -106,17 +106,15 @@
   `).join("");
 
   const eventTypeLabels = {
-    brunch: "brunch",
+    "brunch-focused": "brunch / focused",
     "light-steps": "light steps",
-    focused: "focused"
   };
 
-  const eventTypeOrder = ["brunch", "light-steps", "focused"];
+  const eventTypeOrder = ["brunch-focused", "light-steps"];
 
   const eventTypeDescriptions = {
-    brunch: "Большой разговор за кофе.",
+    "brunch-focused": "Большой разговор и глубокая тема за кофе.",
     "light-steps": "Прогулка, воздух и идеи в движении.",
-    focused: "Одна тема, глубже обычного."
   };
 
   const eventStatusLabels = {
@@ -143,7 +141,9 @@
     };
   };
 
-  const eventTypeLabel = (item) => eventTypeLabels[item.type] || item.type || "встреча";
+  const eventGroupKey = (item) => ["brunch", "focused"].includes(item.type) ? "brunch-focused" : item.type || "other";
+
+  const eventTypeLabel = (item) => eventTypeLabels[eventGroupKey(item)] || item.type || "встреча";
 
   const eventMeta = (item) => [item.time, item.location].filter(Boolean).join(" / ");
 
@@ -194,7 +194,7 @@
     const nextEvent = orderedItems.find((item) => item.status !== "cancelled" && eventTimestamp(item) >= now);
     const nextId = nextEvent ? nextEvent.id : "";
     const groups = orderedItems.reduce((grouped, item) => {
-      const type = item.type || "other";
+      const type = eventGroupKey(item);
       if (!grouped[type]) grouped[type] = [];
       grouped[type].push(item);
       return grouped;
@@ -226,7 +226,7 @@
 
   const renderEventTypeColumns = (items) => {
     const groups = items.reduce((grouped, item) => {
-      const type = item.type || "other";
+      const type = eventGroupKey(item);
       if (!grouped[type]) grouped[type] = [];
       grouped[type].push(item);
       return grouped;
@@ -235,7 +235,7 @@
     const orderedItems = sortEventsByDate(items);
 
     return `<div class="event-type-columns">${groupOrder.filter((type) => groups[type]).map((type) => {
-      const groupItems = orderedItems.filter((item) => (item.type || "other") === type);
+      const groupItems = orderedItems.filter((item) => eventGroupKey(item) === type);
       return `
         <section class="event-type-column" data-event-type="${escapeHtml(type)}" aria-labelledby="event-column-${escapeHtml(type)}">
           <header class="event-type-column-header"><div><span class="event-type-dot" aria-hidden="true"></span><h3 id="event-column-${escapeHtml(type)}">${escapeHtml(eventTypeLabels[type] || type)}</h3></div><span>${eventCountLabel(groupItems.length)}</span><p>${escapeHtml(eventTypeDescriptions[type] || "Формат встречи сообщества.")}</p></header>
@@ -255,50 +255,79 @@
 
   const renderMonthDayEvent = (item) => {
     const href = item.href || `events.html#${item.id || "calendar"}`;
-    return `<a class="month-day-event${item.status === "cancelled" ? " is-cancelled" : ""}" data-type="${escapeHtml(item.type || "other")}" href="${escapeHtml(href)}" title="${escapeHtml(item.title || "Событие")}"><span>#${escapeHtml(item.number || "")}</span><strong>${escapeHtml(item.title || "Без названия")}</strong></a>`;
+    return `<a class="month-day-event${item.status === "cancelled" ? " is-cancelled" : ""}" data-type="${escapeHtml(eventGroupKey(item))}" href="${escapeHtml(href)}" title="${escapeHtml(item.title || "Событие")}"><span>#${escapeHtml(item.number || "")}</span><strong>${escapeHtml(item.title || "Без названия")}</strong></a>`;
   };
 
-  const renderMonthlyCalendar = (items) => {
-    const grouped = items.reduce((months, item) => {
-      const key = monthKey(item);
-      if (!/^\d{4}-\d{2}$/.test(key)) return months;
-      if (!months[key]) months[key] = [];
-      months[key].push(item);
-      return months;
+  const monthItemsByKey = (items) => items.reduce((months, item) => {
+    const key = monthKey(item);
+    if (!/^\d{4}-\d{2}$/.test(key)) return months;
+    if (!months[key]) months[key] = [];
+    months[key].push(item);
+    return months;
+  }, {});
+
+  const monthShortLabel = (key) => {
+    const date = new Date(`${key}-01T12:00:00`);
+    if (Number.isNaN(date.getTime())) return key;
+    return new Intl.DateTimeFormat("ru-RU", { month: "long" }).format(date);
+  };
+
+  const renderMonthCalendarGrid = (key, monthItems) => {
+    const [year, month] = key.split("-").map(Number);
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const leadingDays = (new Date(year, month - 1, 1).getDay() + 6) % 7;
+    const totalCells = leadingDays + daysInMonth;
+    const trailingDays = (7 - (totalCells % 7)) % 7;
+    const eventsByDate = monthItems.reduce((dates, item) => {
+      if (!dates[item.date]) dates[item.date] = [];
+      dates[item.date].push(item);
+      return dates;
     }, {});
+    const cells = [];
     const weekdays = ["пн", "вт", "ср", "чт", "пт", "сб", "вс"];
+
+    weekdays.forEach((weekday) => {
+      cells.push(`<div class="month-weekday" role="columnheader">${weekday}</div>`);
+    });
+    for (let index = 0; index < leadingDays; index += 1) {
+      cells.push(`<div class="month-day is-empty" role="gridcell" aria-hidden="true"></div>`);
+    }
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      const dateKey = `${key}-${String(day).padStart(2, "0")}`;
+      const dayEvents = (eventsByDate[dateKey] || []).sort((a, b) => Number(a.number || 0) - Number(b.number || 0));
+      cells.push(`<div class="month-day${dayEvents.length ? " has-events" : ""}" role="gridcell"><time datetime="${dateKey}">${day}</time>${dayEvents.map(renderMonthDayEvent).join("")}</div>`);
+    }
+    for (let index = 0; index < trailingDays; index += 1) {
+      cells.push(`<div class="month-day is-empty" role="gridcell" aria-hidden="true"></div>`);
+    }
+    return `<div class="month-calendar-grid" role="grid" aria-label="${escapeHtml(monthLabel(key))}">${cells.join("")}</div>`;
+  };
+
+  const renderMonthlyCalendar = (items, activeIndex = 0) => {
+    const grouped = monthItemsByKey(items);
     const months = Object.keys(grouped).sort();
+    if (!months.length) return `<p class="collection-error">Пока нет событий в календаре.</p>`;
+    const currentIndex = Math.max(0, Math.min(activeIndex, months.length - 1));
+    const key = months[currentIndex];
+    const previousKey = months[currentIndex - 1];
+    const nextKey = months[currentIndex + 1];
 
-    return `<div class="month-calendar-list">${months.map((key) => {
-      const [year, month] = key.split("-").map(Number);
-      const daysInMonth = new Date(year, month, 0).getDate();
-      const leadingDays = (new Date(year, month - 1, 1).getDay() + 6) % 7;
-      const totalCells = leadingDays + daysInMonth;
-      const trailingDays = (7 - (totalCells % 7)) % 7;
-      const eventsByDate = grouped[key].reduce((dates, item) => {
-        if (!dates[item.date]) dates[item.date] = [];
-        dates[item.date].push(item);
-        return dates;
-      }, {});
-      const cells = [];
+    return `<div class="month-calendar-view" data-month-index="${currentIndex}" data-month-count="${months.length}"><header class="month-calendar-view-header"><div><p class="section-kicker">месяц ${currentIndex + 1} / ${months.length}</p><h3>${escapeHtml(monthLabel(key))}</h3></div><nav class="month-calendar-nav" aria-label="Переключить месяц"><button class="month-nav-button" type="button" data-month-direction="-1" aria-label="Предыдущий месяц"${previousKey ? "" : " disabled"}><span aria-hidden="true">←</span><small>${escapeHtml(previousKey ? monthShortLabel(previousKey) : "раньше")}</small></button><button class="month-nav-button" type="button" data-month-direction="1" aria-label="Следующий месяц"${nextKey ? "" : " disabled"}><small>${escapeHtml(nextKey ? monthShortLabel(nextKey) : "дальше")}</small><span aria-hidden="true">→</span></button></nav></header>${renderMonthCalendarGrid(key, grouped[key])}</div>`;
+  };
 
-      weekdays.forEach((weekday) => {
-        cells.push(`<div class="month-weekday" role="columnheader">${weekday}</div>`);
+  const mountMonthlyCalendar = (target, items) => {
+    const months = Object.keys(monthItemsByKey(items)).sort();
+    let activeIndex = Math.max(0, months.length - 1);
+    const update = () => {
+      target.innerHTML = renderMonthlyCalendar(items, activeIndex);
+      target.querySelectorAll("[data-month-direction]").forEach((button) => {
+        button.addEventListener("click", () => {
+          activeIndex = Math.max(0, Math.min(months.length - 1, activeIndex + Number(button.dataset.monthDirection)));
+          update();
+        });
       });
-      for (let index = 0; index < leadingDays; index += 1) {
-        cells.push(`<div class="month-day is-empty" role="gridcell" aria-hidden="true"></div>`);
-      }
-      for (let day = 1; day <= daysInMonth; day += 1) {
-        const dateKey = `${key}-${String(day).padStart(2, "0")}`;
-        const dayEvents = (eventsByDate[dateKey] || []).sort((a, b) => Number(a.number || 0) - Number(b.number || 0));
-        cells.push(`<div class="month-day${dayEvents.length ? " has-events" : ""}" role="gridcell"><time datetime="${dateKey}">${day}</time>${dayEvents.map(renderMonthDayEvent).join("")}</div>`);
-      }
-      for (let index = 0; index < trailingDays; index += 1) {
-        cells.push(`<div class="month-day is-empty" role="gridcell" aria-hidden="true"></div>`);
-      }
-
-      return `<section class="month-calendar-month" aria-labelledby="month-${escapeHtml(key)}"><header class="month-calendar-month-header"><h3 id="month-${escapeHtml(key)}">${escapeHtml(monthLabel(key))}</h3><span>${eventCountLabel(grouped[key].length)}</span></header><div class="month-calendar-grid" role="grid" aria-label="${escapeHtml(monthLabel(key))}">${cells.join("")}</div></section>`;
-    }).join("")}</div>`;
+    };
+    update();
   };
 
   const renderFeaturedEvent = (items) => {
@@ -359,15 +388,17 @@
         } else if (collection === "learning") {
           target.innerHTML = isPage ? renderPageLearning(visibleItems) : renderHomeLearning(visibleItems);
         } else if (collection === "events") {
-          target.innerHTML = target.dataset.view === "calendar"
-            ? renderCalendar(visibleItems)
-            : target.dataset.view === "columns"
-              ? renderEventTypeColumns(visibleItems)
-              : target.dataset.view === "month-calendar"
-                ? renderMonthlyCalendar(visibleItems)
+          if (target.dataset.view === "month-calendar") {
+            mountMonthlyCalendar(target, visibleItems);
+          } else {
+            target.innerHTML = target.dataset.view === "calendar"
+              ? renderCalendar(visibleItems)
+              : target.dataset.view === "columns"
+                ? renderEventTypeColumns(visibleItems)
                 : target.dataset.view === "featured"
                   ? renderFeaturedEvent(visibleItems)
                   : renderPageRows(visibleItems, collection);
+          }
         }
       } catch (error) {
         console.warn(error.message);
