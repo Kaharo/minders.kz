@@ -1672,25 +1672,8 @@ button:focus-visible {
 }
 
 .page-morse {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: .65em;
+  display: block;
   text-transform: none;
-}
-
-.page-morse-code {
-  color: transparent;
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  font-size: 12px;
-  letter-spacing: .24em;
-}
-
-.page-morse-divider {
-  color: var(--faint);
-  font-size: 12px;
 }
 
 .page-morse-label {
