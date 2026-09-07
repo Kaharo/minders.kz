@@ -224,25 +224,44 @@
     `;
   };
 
-  const renderEventTypeColumns = (items) => {
-    const groups = items.reduce((grouped, item) => {
-      const type = eventGroupKey(item);
-      if (!grouped[type]) grouped[type] = [];
-      grouped[type].push(item);
+  const renderEventTypeColumns = (items, activeMonth) => {
+    const monthItems = items.filter((item) => monthKey(item) === activeMonth);
+    const [year, month] = activeMonth.split("-").map(Number);
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const leadingDays = (new Date(year, month - 1, 1).getDay() + 6) % 7;
+    const weekCount = Math.ceil((leadingDays + daysInMonth) / 7);
+    const itemsByWeek = eventTypeOrder.reduce((grouped, type) => {
+      grouped[type] = Array.from({ length: weekCount }, () => []);
       return grouped;
     }, {});
-    const groupOrder = [...eventTypeOrder, ...Object.keys(groups).filter((type) => !eventTypeOrder.includes(type))];
-    const orderedItems = sortEventsByDate(items);
 
-    return `<div class="event-type-columns">${groupOrder.filter((type) => groups[type]).map((type) => {
-      const groupItems = orderedItems.filter((item) => eventGroupKey(item) === type);
+    monthItems.forEach((item) => {
+      const type = eventGroupKey(item);
+      if (!itemsByWeek[type]) return;
+      const day = Number(String(item.date).slice(-2));
+      const weekIndex = Math.floor((leadingDays + day - 1) / 7);
+      if (itemsByWeek[type][weekIndex]) itemsByWeek[type][weekIndex].push(item);
+    });
+
+    eventTypeOrder.forEach((type) => {
+      itemsByWeek[type].forEach((weekItems) => weekItems.sort((a, b) => eventTimestamp(a) - eventTimestamp(b)));
+    });
+
+    const renderTypeHeader = (type) => {
+      const groupItems = monthItems.filter((item) => eventGroupKey(item) === type);
       return `
         <section class="event-type-column" data-event-type="${escapeHtml(type)}" aria-labelledby="event-column-${escapeHtml(type)}">
-          <header class="event-type-column-header"><div><span class="event-type-dot" aria-hidden="true"></span><h3 id="event-column-${escapeHtml(type)}">${escapeHtml(eventTypeLabels[type] || type)}</h3></div><span>${eventCountLabel(groupItems.length)}</span><p>${escapeHtml(eventTypeDescriptions[type] || "Формат встречи сообщества.")}</p></header>
-          <div class="event-type-column-list">${groupItems.map(renderEventColumnItem).join("")}</div>
+          <header class="event-type-column-header"><div><span class="event-type-dot" aria-hidden="true"></span><h3 id="event-column-${escapeHtml(type)}">${escapeHtml(eventTypeLabels[type])}</h3></div><span>${eventCountLabel(groupItems.length)} в этом месяце</span><p>${escapeHtml(eventTypeDescriptions[type])}</p></header>
         </section>
       `;
-    }).join("")}</div>`;
+    };
+
+    const weeklySlots = Array.from({ length: weekCount }, (_, weekIndex) => eventTypeOrder.map((type) => {
+      const weekItems = itemsByWeek[type][weekIndex];
+      return `<div class="event-week-slot${weekItems.length ? "" : " is-empty"}" data-event-week="${weekIndex + 1}" data-event-type="${escapeHtml(type)}" aria-label="${escapeHtml(`${eventTypeLabels[type]}, неделя ${weekIndex + 1}`)}">${weekItems.map(renderEventColumnItem).join("")}</div>`;
+    }).join("")).join("");
+
+    return `<section class="events-directory-section" aria-labelledby="events-directory-title"><div class="events-directory-heading"><div><p class="section-kicker">${escapeHtml(monthLabel(activeMonth))} / форматы</p><h2 id="events-directory-title">встречи по неделям</h2></div><p>События остаются на своих местах: если в одной из колонок тише, слот просто ждёт следующую встречу.</p></div><div class="event-type-headers">${eventTypeOrder.map(renderTypeHeader).join("")}</div><div class="event-week-grid" aria-label="События по неделям ${escapeHtml(monthLabel(activeMonth))}">${weeklySlots}</div></section>`;
   };
 
   const monthKey = (item) => String(item.date || "").slice(0, 7);
@@ -312,14 +331,15 @@
     const previousKey = months[currentIndex - 1];
     const nextKey = months[currentIndex + 1];
 
-    return `<div class="month-calendar-view" data-month-index="${currentIndex}" data-month-count="${months.length}"><header class="month-calendar-view-header"><div><p class="section-kicker">месяц ${currentIndex + 1} / ${months.length}</p><h3>${escapeHtml(monthLabel(key))}</h3></div><nav class="month-calendar-nav" aria-label="Переключить месяц"><button class="month-nav-button" type="button" data-month-direction="-1" aria-label="Предыдущий месяц"${previousKey ? "" : " disabled"}><span aria-hidden="true">←</span><small>${escapeHtml(previousKey ? monthShortLabel(previousKey) : "раньше")}</small></button><button class="month-nav-button" type="button" data-month-direction="1" aria-label="Следующий месяц"${nextKey ? "" : " disabled"}><small>${escapeHtml(nextKey ? monthShortLabel(nextKey) : "дальше")}</small><span aria-hidden="true">→</span></button></nav></header>${renderMonthCalendarGrid(key, grouped[key])}</div>`;
+    return `<div class="month-calendar-view" data-month-index="${currentIndex}" data-month-count="${months.length}"><header class="month-calendar-view-header"><div><p class="section-kicker">выбранный период</p><h3>${escapeHtml(monthLabel(key))}</h3></div><nav class="month-calendar-nav" aria-label="Переключить месяц"><button class="month-nav-button" type="button" data-month-direction="-1" aria-label="Предыдущий месяц"${previousKey ? "" : " disabled"}><span aria-hidden="true">←</span><small>${escapeHtml(previousKey ? monthShortLabel(previousKey) : "раньше")}</small></button><button class="month-nav-button" type="button" data-month-direction="1" aria-label="Следующий месяц"${nextKey ? "" : " disabled"}><small>${escapeHtml(nextKey ? monthShortLabel(nextKey) : "дальше")}</small><span aria-hidden="true">→</span></button></nav></header>${renderMonthCalendarGrid(key, grouped[key])}</div>`;
   };
 
-  const mountMonthlyCalendar = (target, items) => {
+  const mountEventsBrowser = (target, items) => {
     const months = Object.keys(monthItemsByKey(items)).sort();
     let activeIndex = Math.max(0, months.length - 1);
     const update = () => {
-      target.innerHTML = renderMonthlyCalendar(items, activeIndex);
+      const activeMonth = months[activeIndex];
+      target.innerHTML = `${renderMonthlyCalendar(items, activeIndex)}${activeMonth ? renderEventTypeColumns(items, activeMonth) : ""}`;
       target.querySelectorAll("[data-month-direction]").forEach((button) => {
         button.addEventListener("click", () => {
           activeIndex = Math.max(0, Math.min(months.length - 1, activeIndex + Number(button.dataset.monthDirection)));
@@ -346,14 +366,27 @@
     return `<p class="section-kicker">${isUpcoming ? "ближайший ивент" : "последняя встреча"}</p><h2>${escapeHtml(featured.title || "Событие")}</h2><p>${escapeHtml(details)}</p>${action}`;
   };
 
-  const renderPagePeople = (items) => items.map((item) => `
-    <div class="page-list-row">
-      <small>${escapeHtml(item.role)}</small>
+  const renderPagePeople = (items) => items.map((item) => {
+    const href = item.href || "people.html";
+    const isExternal = /^https?:\/\//.test(href);
+    const linkAttributes = isExternal ? ' target="_blank" rel="noreferrer"' : "";
+    const portrait = item.image
+      ? `<span class="person-list-portrait"><img src="${escapeHtml(item.image)}" alt="Портрет: ${escapeHtml(item.name)}" loading="lazy"></span>`
+      : `<span class="project-mark ${escapeHtml(item.color || "mark-blue")}" aria-hidden="true"></span>`;
+    const content = item.image ? `
+      ${portrait}
+      <span><strong>${escapeHtml(item.name)}</strong><em>${escapeHtml(item.role)} · ${escapeHtml(item.note || "minders astana")}</em></span>
+      <b aria-hidden="true">${isExternal ? "↗" : "+"}</b>
+    ` : `
+      ${portrait}
       <span><strong>${escapeHtml(item.name)}</strong><em>${escapeHtml(item.note || "minders astana")}</em></span>
-      <span class="project-mark ${escapeHtml(item.color || "mark-blue")}" aria-hidden="true"></span>
-      <b aria-hidden="true">+</b>
-    </div>
-  `).join("");
+      <small>${escapeHtml(item.role)}</small>
+      <b aria-hidden="true">${isExternal ? "↗" : "+"}</b>
+    `;
+    return item.image
+      ? `<a class="page-list-row person-list-row" href="${escapeHtml(href)}"${linkAttributes}>${content}</a>`
+      : `<div class="page-list-row">${content}</div>`;
+  }).join("");
 
   const renderPageLearning = (items) => `
     <div class="tag-wall">${items.map((item) => `<a href="learning.html" class="learning-tag ${escapeHtml(item.color || "tag-blue")}">${escapeHtml(item.title)}</a>`).join("")}</div>
@@ -388,8 +421,8 @@
         } else if (collection === "learning") {
           target.innerHTML = isPage ? renderPageLearning(visibleItems) : renderHomeLearning(visibleItems);
         } else if (collection === "events") {
-          if (target.dataset.view === "month-calendar") {
-            mountMonthlyCalendar(target, visibleItems);
+          if (target.dataset.view === "browser") {
+            mountEventsBrowser(target, visibleItems);
           } else {
             target.innerHTML = target.dataset.view === "calendar"
               ? renderCalendar(visibleItems)
