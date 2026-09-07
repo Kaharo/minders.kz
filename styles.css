@@ -2412,8 +2412,10 @@ button:focus-visible {
 .people-portrait-card {
   position: relative;
   width: min(100%, 460px);
+  aspect-ratio: 1;
   justify-self: start;
   padding: 16px;
+  border-radius: 50%;
   background: linear-gradient(145deg, color-mix(in srgb, var(--cyan) 58%, var(--paper)), color-mix(in srgb, var(--lavender) 82%, var(--paper)) 52%, color-mix(in srgb, var(--peach) 42%, var(--paper)));
   box-shadow: 18px 20px 0 color-mix(in srgb, var(--pink) 18%, transparent);
   transform: rotate(-2.2deg);
@@ -2428,8 +2430,8 @@ button:focus-visible {
 
 .people-portrait-card::before {
   inset: 8px;
+  border-radius: 50%;
   border: 1px solid color-mix(in srgb, var(--violet) 60%, transparent);
-  clip-path: polygon(0 0, 78% 0, 100% 22%, 100% 100%, 22% 100%, 0 78%);
 }
 
 .people-portrait-card::after {
@@ -2448,6 +2450,7 @@ button:focus-visible {
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
+  border-radius: 50%;
   border: 1px solid rgba(11, 16, 32, .16);
 }
 
@@ -2473,6 +2476,7 @@ button:focus-visible {
   right: 24px;
   bottom: 25px;
   padding: 6px 8px;
+  border-radius: 999px;
   background: color-mix(in srgb, var(--paper) 84%, transparent);
 }
 
@@ -2532,6 +2536,8 @@ button:focus-visible {
   height: 72px;
   display: block;
   padding: 4px;
+  border-radius: 50%;
+  overflow: hidden;
   background: var(--brand-gradient);
   transform: rotate(-2deg);
 }
@@ -2539,6 +2545,7 @@ button:focus-visible {
 .person-list-portrait img {
   width: 100%;
   height: 100%;
+  border-radius: 50%;
   object-fit: cover;
 }
 
