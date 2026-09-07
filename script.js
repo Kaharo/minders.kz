@@ -73,6 +73,27 @@
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 
+  const morseAlphabet = {
+    "А": ".-", "Б": "-...", "В": ".--", "Г": "--.", "Д": "-..", "Е": ".", "Ё": ".", "Ж": "...-", "З": "--..", "И": "..", "Й": ".---", "К": "-.-", "Л": ".-..", "М": "--", "Н": "-.", "О": "---", "П": ".--.", "Р": ".-.", "С": "...", "Т": "-", "У": "..-", "Ф": "..-.", "Х": "....", "Ц": "-.-.", "Ч": "---.", "Ш": "----", "Щ": "--.-", "Ъ": "--.--", "Ы": "-.--", "Ь": "-..-", "Э": "..-..", "Ю": "..--", "Я": ".-.-",
+    "0": "-----", "1": ".----", "2": "..---", "3": "...--", "4": "....-", "5": ".....", "6": "-....", "7": "--...", "8": "---..", "9": "----."
+  };
+
+  const morseFor = (value) => String(value)
+    .toUpperCase()
+    .split("")
+    .map((character) => character === " " || character === "-" ? "/" : morseAlphabet[character] || character)
+    .join(" ")
+    .replaceAll(" / ", " / ");
+
+  const renderMorseKicker = (label) => `<p class="section-kicker morse-kicker"><span class="sr-only">${escapeHtml(label)}</span><span class="morse-kicker-code" aria-hidden="true">${escapeHtml(morseFor(label))}</span></p>`;
+
+  const hydrateMorseLabels = () => {
+    document.querySelectorAll("[data-morse-label]").forEach((element) => {
+      const code = element.querySelector("[data-morse-code]");
+      if (code) code.textContent = morseFor(element.dataset.morseLabel);
+    });
+  };
+
   const collectionPath = (collection) => `data/${collection}.json`;
 
   const renderHomeProjects = (items) => items.map((item) => `
@@ -331,7 +352,7 @@
     const previousKey = months[currentIndex - 1];
     const nextKey = months[currentIndex + 1];
 
-    return `<div class="month-calendar-view" data-month-index="${currentIndex}" data-month-count="${months.length}"><header class="month-calendar-view-header"><div><p class="section-kicker">выбранный период</p><h3>${escapeHtml(monthLabel(key))}</h3></div><nav class="month-calendar-nav" aria-label="Переключить месяц"><button class="month-nav-button" type="button" data-month-direction="-1" aria-label="Предыдущий месяц"${previousKey ? "" : " disabled"}><span aria-hidden="true">←</span><small>${escapeHtml(previousKey ? monthShortLabel(previousKey) : "раньше")}</small></button><button class="month-nav-button" type="button" data-month-direction="1" aria-label="Следующий месяц"${nextKey ? "" : " disabled"}><small>${escapeHtml(nextKey ? monthShortLabel(nextKey) : "дальше")}</small><span aria-hidden="true">→</span></button></nav></header>${renderMonthCalendarGrid(key, grouped[key])}</div>`;
+    return `<div class="month-calendar-view" data-month-index="${currentIndex}" data-month-count="${months.length}"><header class="month-calendar-view-header"><div>${renderMorseKicker("выбранный период")}<h3>${escapeHtml(monthLabel(key))}</h3></div><nav class="month-calendar-nav" aria-label="Переключить месяц"><button class="month-nav-button" type="button" data-month-direction="-1" aria-label="Предыдущий месяц"${previousKey ? "" : " disabled"}><span aria-hidden="true">←</span><small>${escapeHtml(previousKey ? monthShortLabel(previousKey) : "раньше")}</small></button><button class="month-nav-button" type="button" data-month-direction="1" aria-label="Следующий месяц"${nextKey ? "" : " disabled"}><small>${escapeHtml(nextKey ? monthShortLabel(nextKey) : "дальше")}</small><span aria-hidden="true">→</span></button></nav></header>${renderMonthCalendarGrid(key, grouped[key])}</div>`;
   };
 
   const mountEventsBrowser = (target, items) => {
@@ -363,7 +384,7 @@
     const action = isUpcoming
       ? `<a class="button button-dark" href="https://t.me/+SoZBXVPxmp1mYjRi" target="_blank" rel="noreferrer">я иду <span aria-hidden="true">→</span></a>`
       : `<a class="button button-dark" href="#calendar">смотреть календарь <span aria-hidden="true">→</span></a>`;
-    return `<p class="section-kicker">${isUpcoming ? "ближайший ивент" : "последняя встреча"}</p><h2>${escapeHtml(featured.title || "Событие")}</h2><p>${escapeHtml(details)}</p>${action}`;
+    return `${renderMorseKicker(isUpcoming ? "ближайший ивент" : "последняя встреча")}<h2>${escapeHtml(featured.title || "Событие")}</h2><p>${escapeHtml(details)}</p>${action}`;
   };
 
   const renderPagePeople = (items) => items.map((item) => {
@@ -440,5 +461,6 @@
     }));
   };
 
+  hydrateMorseLabels();
   hydrateCollections();
 })();

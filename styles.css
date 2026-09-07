@@ -1676,10 +1676,27 @@ button:focus-visible {
   text-transform: none;
 }
 
-.page-morse-label {
-  color: var(--blue);
+.page-morse-code,
+.morse-kicker-code {
+  display: inline-block;
+  max-width: 100%;
+  color: transparent;
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-size: 11px;
+  letter-spacing: .16em;
+  line-height: 1.5;
+  word-spacing: .32em;
+}
+
+.morse-kicker {
+  text-transform: none;
+}
+
+.morse-kicker-code {
   font-size: 10px;
-  letter-spacing: .2em;
+  letter-spacing: .14em;
 }
 
 .page-title {
