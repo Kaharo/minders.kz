@@ -262,5 +262,17 @@
     "location": "Coffee BOOM EXPO, Астана",
     "image": "photos/photo_471_0.jpg",
     "status": "past"
+  },
+  {
+    "number": 23,
+    "id": "2026-09-06-focused-ring-of-autotests",
+    "type": "focused",
+    "title": "Ring of Autotests",
+    "description": "Как выстроить надежную систему автотестов для AI-продуктов.",
+    "date": "2026-09-06",
+    "time": "12:00",
+    "location": "Coffee BOOM EXPO, Астана",
+    "image": "assets/ring-of-autotests.jpg",
+    "status": "past"
   }
 ]

@@ -282,7 +282,7 @@
       return `<div class="event-week-slot${weekItems.length ? "" : " is-empty"}" data-event-week="${weekIndex + 1}" data-event-type="${escapeHtml(type)}" aria-label="${escapeHtml(`${eventTypeLabels[type]}, неделя ${weekIndex + 1}`)}">${weekItems.map(renderEventColumnItem).join("")}</div>`;
     }).join("")).join("");
 
-    return `<section class="events-directory-section" aria-labelledby="events-directory-title"><div class="events-directory-heading"><div><p class="section-kicker">${escapeHtml(monthLabel(activeMonth))} / форматы</p><h2 id="events-directory-title">встречи по неделям</h2></div><p>События остаются на своих местах: если в одной из колонок тише, слот просто ждёт следующую встречу.</p></div><div class="event-type-headers">${eventTypeOrder.map(renderTypeHeader).join("")}</div><div class="event-week-grid" aria-label="События по неделям ${escapeHtml(monthLabel(activeMonth))}">${weeklySlots}</div></section>`;
+    return `<section class="events-directory-section" aria-labelledby="events-directory-title"><div class="events-directory-heading"><div><p class="section-kicker">${escapeHtml(monthLabel(activeMonth))} / форматы</p><h2 id="events-directory-title">встречи по неделям</h2></div></div><div class="event-type-headers">${eventTypeOrder.map(renderTypeHeader).join("")}</div><div class="event-week-grid" aria-label="События по неделям ${escapeHtml(monthLabel(activeMonth))}">${weeklySlots}</div></section>`;
   };
 
   const monthKey = (item) => String(item.date || "").slice(0, 7);
@@ -384,7 +384,7 @@
     const action = isUpcoming
       ? `<a class="button button-dark" href="https://t.me/+SoZBXVPxmp1mYjRi" target="_blank" rel="noreferrer">я иду <span aria-hidden="true">→</span></a>`
       : `<a class="button button-dark" href="#calendar">смотреть календарь <span aria-hidden="true">→</span></a>`;
-    return `${renderMorseKicker(isUpcoming ? "ближайший ивент" : "последняя встреча")}<h2>${escapeHtml(featured.title || "Событие")}</h2><p>${escapeHtml(details)}</p>${action}`;
+    return `<p class="section-kicker event-type-kicker">${escapeHtml(eventTypeLabel(featured))}</p><h2>${escapeHtml(featured.title || "Событие")}</h2><p>${escapeHtml(details)}</p>${action}`;
   };
 
   const renderPagePeople = (items) => items.map((item) => {
