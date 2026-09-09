@@ -2409,6 +2409,16 @@ button:focus-visible {
   margin-top: clamp(48px, 7vw, 90px);
 }
 
+.about-person-profile-alt {
+  margin-top: clamp(70px, 10vw, 138px);
+  padding-top: clamp(42px, 6vw, 72px);
+  border-top: 1px solid var(--line);
+}
+
+.about-person-profile-alt .people-portrait-card {
+  justify-self: end;
+}
+
 .people-portrait-card {
   position: relative;
   width: min(100%, 460px);
@@ -2452,6 +2462,25 @@ button:focus-visible {
   object-fit: cover;
   border-radius: 50%;
   border: 1px solid rgba(11, 16, 32, .16);
+}
+
+.people-portrait-placeholder {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--lavender) 86%, var(--paper)), color-mix(in srgb, var(--cyan) 58%, var(--paper)) 52%, color-mix(in srgb, var(--pink) 38%, var(--paper)));
+}
+
+.people-portrait-initial {
+  position: relative;
+  z-index: 1;
+  color: transparent;
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  font-size: clamp(120px, 17vw, 220px);
+  font-weight: 650;
+  letter-spacing: -.12em;
+  line-height: .8;
 }
 
 .people-portrait-signal,
@@ -2525,6 +2554,32 @@ button:focus-visible {
   color: var(--faint);
   font-size: 12px;
   line-height: 1.45;
+}
+
+.about-person-highlights {
+  display: grid;
+  gap: 12px;
+  margin: 30px 0 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.42;
+  list-style: none;
+}
+
+.about-person-highlights li {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.about-person-highlights li::before {
+  content: "";
+  width: 10px;
+  height: 1px;
+  margin-top: .65em;
+  background: var(--brand-gradient);
 }
 
 .person-list-row {
@@ -3480,6 +3535,9 @@ button:focus-visible {
   }
   .people-portrait-card {
     width: min(88vw, 390px);
+  }
+  .about-person-profile-alt .people-portrait-card {
+    justify-self: start;
   }
   .about-person-copy h3 {
     font-size: clamp(44px, 15vw, 68px);
