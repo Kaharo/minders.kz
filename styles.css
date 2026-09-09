@@ -2525,11 +2525,19 @@ button:focus-visible {
   line-height: .9;
 }
 
-.about-person-copy > p:not(.section-kicker):not(.about-person-note) {
+.about-person-copy > p:not(.section-kicker):not(.about-person-note):not(.about-person-role) {
   margin: 28px 0 24px;
   color: var(--muted);
   font-size: 17px;
   line-height: 1.45;
+}
+
+.about-person-role {
+  margin: 16px 0 0;
+  color: var(--violet);
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -.02em;
 }
 
 .person-link {
