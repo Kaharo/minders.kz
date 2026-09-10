@@ -22,5 +22,21 @@
     "description": "Предиктивные технологии для казахского языка.",
     "href": "projects.html#bolzhau",
     "color": "mark-mint"
+  },
+  {
+    "slug": "ai-automator-academy",
+    "title": "AI Automator Academy",
+    "meta": "проект Артура / AI-автоматизация",
+    "description": "Платформа про AI-автоматизацию: агенты, промптинг и рабочие процессы без кода.",
+    "href": "https://platformai.gurugo.me",
+    "color": "mark-violet"
+  },
+  {
+    "slug": "ai-skills",
+    "title": "AI SKILLS",
+    "meta": "проект Артура / инструменты и обучение",
+    "description": "Промпты, AI-ассистенты, Skills для Claude Code и шаблоны автоматизаций Make и n8n.",
+    "href": "https://aiskills.team",
+    "color": "mark-blue"
   }
 ]

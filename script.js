@@ -97,13 +97,20 @@
 
   const collectionPath = (collection) => `data/${collection}.json?v=${ASSET_VERSION}`;
 
-  const renderHomeProjects = (items) => items.map((item) => `
-    <a class="project-row" href="${escapeHtml(item.href || "projects.html")}">
+  const externalLinkAttributes = (href) => /^https?:\/\//.test(href)
+    ? ' target="_blank" rel="noreferrer"'
+    : "";
+
+  const renderHomeProjects = (items) => items.map((item) => {
+    const href = item.href || "projects.html";
+    return `
+    <a class="project-row" href="${escapeHtml(href)}"${externalLinkAttributes(href)}>
       <span class="project-mark ${escapeHtml(item.color || "mark-blue")}"></span>
       <span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.meta)}</small></span>
       <b aria-hidden="true">↗</b>
     </a>
-  `).join("");
+  `;
+  }).join("");
 
   const renderHomeNews = (items) => items.map((item) => `
     <a class="latest-row" href="${escapeHtml(item.href || "news.html")}">
@@ -414,14 +421,17 @@
     <div class="tag-wall">${items.map((item) => `<a href="learning.html" class="learning-tag ${escapeHtml(item.color || "tag-blue")}">${escapeHtml(item.title)}</a>`).join("")}</div>
   `;
 
-  const renderPageProjects = (items) => items.map((item) => `
-    <a class="page-list-row" id="${escapeHtml(item.slug || "project")}" href="${escapeHtml(item.href || "projects.html")}">
+  const renderPageProjects = (items) => items.map((item) => {
+    const href = item.href || "projects.html";
+    return `
+    <a class="page-list-row" id="${escapeHtml(item.slug || "project")}" href="${escapeHtml(href)}"${externalLinkAttributes(href)}>
       <small>${escapeHtml(item.meta)}</small>
       <span><strong>${escapeHtml(item.title)}</strong><em>${escapeHtml(item.description || "Проект сообщества")}</em></span>
       <span class="project-mark ${escapeHtml(item.color || "mark-blue")}" aria-hidden="true"></span>
       <b aria-hidden="true">↗</b>
     </a>
-  `).join("");
+  `;
+  }).join("");
 
   const hydrateCollections = async () => {
     const targets = [...document.querySelectorAll("[data-collection]")];
