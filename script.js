@@ -1,4 +1,5 @@
 (() => {
+  const ASSET_VERSION = "20260909-2";
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.body.classList.add("has-js");
 
@@ -94,7 +95,7 @@
     });
   };
 
-  const collectionPath = (collection) => `data/${collection}.json`;
+  const collectionPath = (collection) => `data/${collection}.json?v=${ASSET_VERSION}`;
 
   const renderHomeProjects = (items) => items.map((item) => `
     <a class="project-row" href="${escapeHtml(item.href || "projects.html")}">
