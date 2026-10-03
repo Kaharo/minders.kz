@@ -1,55 +1,5 @@
 [
   {
-    "slug": "atlas",
-    "title": "Atlas",
-    "meta": "визуализация / Knowledge Base",
-    "description": "Визуальная карта Knowledge Base.",
-    "href": "projects.html#atlas",
-    "color": "mark-blue",
-    "author": "сообщество minders",
-    "category": "визуализация"
-  },
-  {
-    "slug": "architecture-of-thoughts",
-    "title": "Architecture of Thoughts",
-    "meta": "обучение / AI",
-    "description": "Обучающие материалы и практики для работы со сложными AI-системами.",
-    "href": "projects.html#architecture-of-thoughts",
-    "color": "mark-violet",
-    "author": "Артур Магдалянов",
-    "category": "обучение"
-  },
-  {
-    "slug": "bolzhau",
-    "title": "Bolzhau",
-    "meta": "предиктивные технологии / казахский язык",
-    "description": "Предиктивные технологии для казахского языка.",
-    "href": "projects.html#bolzhau",
-    "color": "mark-mint",
-    "author": "Қанат Базаралы",
-    "category": "продукт"
-  },
-  {
-    "slug": "ai-automator-academy",
-    "title": "AI Automator Academy",
-    "meta": "проект Артура / AI-автоматизация",
-    "description": "Платформа про AI-автоматизацию: агенты, промптинг и рабочие процессы без кода.",
-    "href": "https://platformai.gurugo.me",
-    "color": "mark-violet",
-    "author": "Артур Магдалянов",
-    "category": "обучение"
-  },
-  {
-    "slug": "ai-skills",
-    "title": "AI SKILLS",
-    "meta": "проект Артура / инструменты и обучение",
-    "description": "Промпты, AI-ассистенты, Skills для Claude Code и шаблоны автоматизаций Make и n8n.",
-    "href": "https://aiskills.team",
-    "color": "mark-blue",
-    "author": "Артур Магдалянов",
-    "category": "обучение"
-  },
-  {
     "slug": "app321",
     "title": "app321",
     "meta": "продукт / Сергей Буш",

@@ -1,5 +1,5 @@
 (() => {
-  const ASSET_VERSION = "20260909-2";
+  const ASSET_VERSION = "20260913-1";
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   document.body.classList.add("has-js");
 
@@ -106,7 +106,7 @@
     return `
     <a class="project-row" href="${escapeHtml(href)}"${externalLinkAttributes(href)}>
       <span class="project-mark ${escapeHtml(item.color || "mark-blue")}"></span>
-      <span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.meta)}</small></span>
+      <span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.meta)}</small><small class="project-author">автор: ${escapeHtml(item.author || "сообщество minders")}</small></span>
       <b aria-hidden="true">↗</b>
     </a>
   `;
@@ -148,7 +148,8 @@
 
   const eventStatusLabels = {
     past: "прошло",
-    cancelled: "отменено"
+    cancelled: "отменено",
+    upcoming: "скоро"
   };
 
   const eventDate = (item) => new Date(`${item.date || ""}T12:00:00`);
@@ -156,6 +157,11 @@
   const eventTimestamp = (item) => {
     const timestamp = eventDate(item).getTime();
     return Number.isNaN(timestamp) ? 0 : timestamp;
+  };
+
+  const eventStatusText = (item) => {
+    if (item.status === "upcoming" && eventTimestamp(item) < Date.now()) return eventStatusLabels.past;
+    return eventStatusLabels[item.status] || item.status || "";
   };
 
   const eventDateParts = (item) => {
@@ -199,7 +205,7 @@
   const renderCalendarEvent = (item, nextId) => {
     const dateParts = eventDateParts(item);
     const href = item.href || `events.html#${item.id || "calendar"}`;
-    const status = eventStatusLabels[item.status] || item.status || "";
+    const status = eventStatusText(item);
     const meta = eventMeta(item);
     const description = item.description ? `<span class="calendar-event-description">${escapeHtml(item.description)}</span>` : "";
     return `
@@ -241,7 +247,7 @@
   const renderEventColumnItem = (item) => {
     const dateParts = eventDateParts(item);
     const href = item.href || `events.html#${item.id || "calendar"}`;
-    const status = eventStatusLabels[item.status] || item.status || "";
+    const status = eventStatusText(item);
     const meta = eventMeta(item);
     const supportingText = meta || item.description || "";
     return `
@@ -400,8 +406,23 @@
     const isExternal = /^https?:\/\//.test(href);
     const linkAttributes = isExternal ? ' target="_blank" rel="noreferrer"' : "";
     const portrait = item.image
-      ? `<span class="person-list-portrait"><img src="${escapeHtml(item.image)}" alt="Портрет: ${escapeHtml(item.name)}" loading="lazy"></span>`
+      ? `<span class="person-list-portrait"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" width="640" height="640" loading="lazy" decoding="async"></span>`
       : `<span class="project-mark ${escapeHtml(item.color || "mark-blue")}" aria-hidden="true"></span>`;
+    if (item.telegram) {
+      return `
+        <div class="page-list-row person-list-row person-list-row-with-links">
+          <span class="person-list-main">
+            ${portrait}
+            <span><strong>${escapeHtml(item.name)}</strong><em>${escapeHtml(item.role)} · ${escapeHtml(item.note || "minders astana")}</em></span>
+          </span>
+          <span class="person-list-links">
+            <a class="person-list-secondary" href="${escapeHtml(href)}"${linkAttributes}>личный сайт <span aria-hidden="true">↗</span></a>
+            <a class="person-list-secondary" href="${escapeHtml(item.telegram)}" target="_blank" rel="noreferrer">telegram <span aria-hidden="true">↗</span></a>
+          </span>
+          <b aria-hidden="true">↗</b>
+        </div>
+      `;
+    }
     const content = item.image ? `
       ${portrait}
       <span><strong>${escapeHtml(item.name)}</strong><em>${escapeHtml(item.role)} · ${escapeHtml(item.note || "minders astana")}</em></span>
@@ -423,12 +444,12 @@
 
   const renderPageProjects = (items) => items.map((item) => {
     const href = item.href || "projects.html";
+    const color = item.color || "mark-blue";
     return `
-    <a class="page-list-row" id="${escapeHtml(item.slug || "project")}" href="${escapeHtml(href)}"${externalLinkAttributes(href)}>
-      <small>${escapeHtml(item.meta)}</small>
-      <span><strong>${escapeHtml(item.title)}</strong><em>${escapeHtml(item.description || "Проект сообщества")}</em></span>
-      <span class="project-mark ${escapeHtml(item.color || "mark-blue")}" aria-hidden="true"></span>
-      <b aria-hidden="true">↗</b>
+    <a class="project-card project-card-${escapeHtml(color)}" id="${escapeHtml(item.slug || "project")}" href="${escapeHtml(href)}"${externalLinkAttributes(href)}>
+      <span class="project-card-top"><small class="project-card-category"><span class="project-mark ${escapeHtml(color)}" aria-hidden="true"></span>${escapeHtml(item.category || "проект")}</small><b aria-hidden="true">↗</b></span>
+      <span class="project-card-body"><strong>${escapeHtml(item.title)}</strong><em>${escapeHtml(item.description || "Проект сообщества")}</em></span>
+      <span class="project-card-footer"><small>${escapeHtml(item.meta || "")}</small><span>автор: ${escapeHtml(item.author || "сообщество minders")}</span></span>
     </a>
   `;
   }).join("");

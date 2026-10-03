@@ -274,5 +274,17 @@
     "location": "Coffee BOOM EXPO, Астана",
     "image": "assets/ring-of-autotests.jpg",
     "status": "past"
+  },
+  {
+    "number": 24,
+    "id": "2026-10-04-focused-control-of-agents",
+    "type": "focused",
+    "title": "Контроль агентов",
+    "description": "Как держать AI-агентов под контролем: подходы, инструменты и практики для безопасности и качества в реальных задачах.",
+    "date": "2026-10-04",
+    "time": "12:00",
+    "location": "Coffee BOOM, район EXPO, Астана",
+    "image": "assets/control-of-agents.webp",
+    "status": "upcoming"
   }
 ]
